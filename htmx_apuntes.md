@@ -59,3 +59,104 @@ hx-target="#contenedor"
 hx-target="this"
 hx-target="closest .clase"
 ```
+### `hx-swap`: insertar la respuesta
+
+```html
+hx-swap="innerHTML"     <!-- (default) Reemplaza contenido interno -->
+hx-swap="outerHTML"     <!-- Reemplaza el elemento completo -->
+hx-swap="beforebegin"`  <!-- Inserta antes del elemento -->
+hx-swap="afterbegin"`   <!-- Inserta como primer hijo -->
+hx-swap="beforeend"`    <!-- Inserta como último hijo -->
+hx-swap="afterend"`     <!-- Inserta después del elemento -->
+hx-swap="none"`         <!-- No actualiza nada -->
+```
+#### Tambien se pueden controlar las transiciones:
+`hx-swap="outerHTML transition:true swap:1s settle:500ms"`
+
+### `hx-swap`: cuando disparar la petición
+
+```html
+hx-trigger="click"
+hx-trigger="change"
+hx-trigger="submit"
+hx-trigger="every 5s"
+hx-trigger="load"
+hx-trigger="keyup delay:500ms"
+hx-trigger="revealed" <!-- cuando el elemento entra en viewport -->
+```
+### Algunos modificadores interesantes:
+
+- `once`: Solo una vez
+- `changued` Solo si cambia el valor
+- `delay:500ms`: espera la cantidad de tiempo definida antes de disparar(en este caso 500ms)
+
+### hx-confirm
+
+Muestra un mensaje antes de realizar una acción: 
+```html
+<button hx-post="/borrar" hx-confirm="¿Estás seguro?">Borrar</button>
+```
+# Formularios con htmx
+```html
+<form hx-post="/procesar" hx-target="#resultado" hx-swap="outerHTML">
+  <input name="nombre">
+  <button type="submit">Enviar</button>
+</form>
+
+<div id="resultado"></div>
+```
+
+# Incluir datos adicionales
+ - `hx-include`: Permite incluir otros campos
+ ```html
+ <form>
+  <input name="email">
+  <input id="oculto" name="token" value="abc123">
+  <button hx-post="/api" hx-include="#oculto">Enviar</button>
+</form>
+ ```
+ - `hx-vals`: Agrega datos extra directamente
+ ```html
+ <button hx-post="/api" hx-vals='{"clave": "valor"}'>Guardar</button>
+```
+- `hx-select`: Solo renderiza parte del html devuelto:
+```html
+<div hx-get="/info" hx-select="#solo-esto" hx-target="#destino"></div>
+```
+# Navegacion y estado
+
+- `hx-push`: Modifica el historial del navegador:
+```html
+<a hx-get="/pagina2" hx-push-url="true" hx-target="#main">Ir</a>
+```
+# Eventos emitidos por HTMX
+
+Puedes enganchar JS personalizando con estos eventos:
+
+- `htmx:configRequest`: Ocurre antes de enviar la petición
+- `htmx:beforeRequest`: Ocurre justo antes del envio
+- `htmx:afterRequest`: Ocurre despues de completarla
+- `htmx:beforeSwap`: Ocurre antes de insertar HTML
+- `htmx:afterSwap`: Ocurre despues de insertar HTML
+- `htmx:responseError`: Ocurre si hay un error en la respuesta
+- `htmx:error`: Ocurre si hay cualquier error en la operación
+- `htmx:load`: Cada vez que se carga un fragmento nuevo
+
+#### Ejemplo:
+```js
+document.body.addEventListener("htmx:afterSwap", (e) => {
+  console.log("Se actualizó algo con HTMX");
+});
+```
+# Extensiones
+
+### WebSockets:
+```html
+<script src="https://unpkg.com/htmx.org/dist/ext/ws.js"></script>
+
+<div hx-ext="ws" ws-connect="/stream"></div>
+```
+### SSE
+```html
+<div hx-get="/notificaciones" hx-trigger="sse:mensaje" hx-swap="beforeend"></div>
+```
